@@ -40,7 +40,7 @@ try {
 }
 
 // Sprawdź, czy zadanie należy do zalogowanego użytkownika
-$userId = $_SESSION['id'] ?? 0;
+$userId = $_SESSION['account_id'] ?? 0;
 
 if (!is_task_owner_db($mysqlConn, $taskId, $userId)) {
     http_response_code(403);

@@ -57,7 +57,7 @@ $completedTasks = get_completed_tasks_db($mysqlConn, $userId);
     <div class="container sepm-container">
         <h1 class="app-title">
             <i class="fas fa-clock me-2"></i>
-            <?php echo $APPtitle; ?> - System analizy czasu pracy (DB)
+            <?php echo $APPtitle;?> - System analizy czasu pracy (DB)
         </h1>
         
         <!-- Informacja o systemie -->
@@ -70,7 +70,7 @@ $completedTasks = get_completed_tasks_db($mysqlConn, $userId);
         
         <!-- Wyświetlanie alertów -->
         <?php display_alerts(); ?>
-        
+
         <!-- Formularz wyboru okresu -->
         <div class="card sepm-card mb-4">
             <div class="card-header sepm-card-header">
@@ -241,7 +241,12 @@ $completedTasks = get_completed_tasks_db($mysqlConn, $userId);
     <!-- JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="wta.js"></script>
+    <script>
+        // Przekazanie zmiennych konfiguracyjnych z PHP do JavaScript
+        const WTA_PREVIEW_DAYS = <?php echo WTA_PREVIEW_DAYS; ?>;
+        const WTA_MAX_ANALYSIS_DAYS = <?php echo WTA_MAX_ANALYSIS_DAYS; ?>;
+    </script>
+<script src="wta.js"></script>
 </body>
 </html>
 

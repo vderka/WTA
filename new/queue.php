@@ -36,7 +36,7 @@ try {
 // Obsługa akcji
 $action = $_GET['action'] ?? '';
 $taskId = $_GET['task_id'] ?? '';
-$userId = $_SESSION['id'] ?? 0;
+$userId = $_SESSION['account_id'] ?? 0;
 
 // Usuwanie zadania
 if ($action === 'delete' && !empty($taskId)) {

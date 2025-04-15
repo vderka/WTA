@@ -47,7 +47,7 @@ if (!$isCronMode) {
     $startDate = $_POST['startDate'] ?? '';
     $endDate = $_POST['endDate'] ?? '';
     $samNumber = $_POST['samNumber'] ?? '';
-    $userId = $_SESSION['id'] ?? 0;
+    $userId = $_SESSION['account_id'] ?? 0;
     
     // Walidacja dat
     if (empty($startDate) || empty($endDate)) {

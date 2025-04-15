@@ -33,11 +33,14 @@ function get_orders($conn, $startDate, $endDate, $samNumber = '') {
             COALESCE(dn.depname, d.initial_name) AS department_name,
             s.start_time AS shift_start,
             s.end_time AS shift_end,
+            c.display_name AS company_name,
             GROUP_CONCAT(DISTINCT CONCAT(b.start_time, '|', b.end_time, '|', b.ispaid) SEPARATOR ';') AS breaks
         FROM 
             sepm_order_person o
         LEFT JOIN 
             sepm_departments d ON o.department_id = d.id
+        LEFT JOIN 
+            sepm_company_def c ON d.company_owner_code = c.company_code
         LEFT JOIN 
             sepm_departments_names dn ON d.id = dn.department_id 
                 AND o.ordered_for BETWEEN dn.begda AND COALESCE(dn.enda, '9999-12-31')
@@ -70,7 +73,6 @@ function get_orders($conn, $startDate, $endDate, $samNumber = '') {
     $stmt->execute($params);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
-
 /**
  * Pobiera informacje o pracownikach i ich kartach RFID
  * Mapuje numery SAM i RFID do zaszyfrowanego numeru identyfikacyjnego

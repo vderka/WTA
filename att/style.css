@@ -1,0 +1,380 @@
+/**
+ * SEPM Attendance System - Custom Styling
+ * Style zgodny z wyglądem SEPM UI
+ */
+
+ body {
+    background-color: #f0f4f8; 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #2c3e50;
+}
+
+/* Card Styling */
+.sepm-card {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    margin-bottom: 1rem;
+    overflow: hidden;
+    border: none;
+}
+
+.sepm-card-header {
+    background-color: #2c3e50;
+    color: white;
+    padding: 0.8rem 1rem;
+    font-weight: 600;
+    border-bottom: 2px solid #3498db;
+}
+
+/* Filtry i bloki */
+.filter-block {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.filter-header {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0.8rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+}
+
+.filter-header i {
+    margin-right: 0.5rem;
+    color: #3498db;
+}
+
+/* Button Styling */
+.sepm-btn {
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    border-radius: 4px;
+    padding: 0.4rem 0.8rem;
+    font-weight: 500;
+}
+
+.sepm-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.12);
+}
+
+/* Company & Department Button Styling */
+.company-button, 
+.department-button {
+    margin-bottom: 0.5rem;
+    border-radius: 4px;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+    min-height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    font-weight: 500;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    padding: 6px 40px 6px 10px; /* Space for count badge */
+    text-align: left;
+    letter-spacing: -0.2px;
+    font-size: 0.85rem;
+}
+
+.company-button {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    color: #495057;
+}
+
+.company-button:hover,
+.department-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+}
+
+.company-button.active {
+    background-color: #3498db;
+    border-color: #3498db;
+    color: white;
+    font-weight: 600;
+}
+
+.department-button.active, 
+.department-button.btn-success {
+    font-weight: 600;
+}
+
+.department-button.unordered {
+    background-color: #f1c40f;
+    border-color: #f1c40f;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.department-button.unordered:hover {
+    background-color: #f39c12;
+    border-color: #f39c12;
+}
+
+.employee-count {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(255, 255, 255, 0.2);
+    color: inherit;
+    border-radius: 50px;
+    padding: 1px 6px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.company-button .company-icon {
+    margin-right: 0.5rem;
+    opacity: 0.7;
+    font-size: 0.9rem;
+}
+
+.company-button.active .company-icon {
+    opacity: 1;
+}
+
+/* Attendance Table Styling */
+.attendance-table {
+    font-size: 0.85rem;
+    width: 100%;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.attendance-table th {
+    background-color: #3498db;
+    color: white;
+    font-weight: 500;
+    padding: 8px 6px;
+    vertical-align: middle;
+    border-bottom: none;
+    font-size: 0.8rem;
+    letter-spacing: 0.2px;
+}
+
+.attendance-table td {
+    vertical-align: middle;
+    padding: 8px 6px;
+    background-color: #fff;
+}
+
+.attendance-table tr:hover td {
+    background-color: rgba(52, 152, 219, 0.05);
+}
+
+/* Details Row Styling */
+.details-row {
+    display: none; /* Domyślnie ukryte */
+}
+
+.details-container {
+    padding: 10px;
+    background-color: #f8f9fa;
+}
+
+/* Expandable section for expanded rows */
+.expandable-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 6px;
+    margin-bottom: 10px;
+    font-size: 0.85rem;
+}
+
+.entry-section {
+    background-color: white;
+    border-radius: 4px;
+    padding: 8px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.entry-section-header {
+    font-weight: 600;
+    font-size: 0.75rem;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    align-items: center;
+}
+
+.entry-section-header i {
+    margin-right: 4px;
+    font-size: 0.8rem;
+}
+
+.entry-time {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 1px;
+}
+
+.entry-reader {
+    font-size: 0.75rem;
+    color: #6c757d;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 3px;
+}
+
+.entry-source {
+    margin-top: 3px;
+}
+
+/* Badge Styling */
+.badge {
+    padding: 0.35em 0.5em;
+    font-weight: 500;
+    border-radius: 3px;
+    font-size: 0.7rem;
+}
+
+.badge.bg-sepm {
+    background-color: #27ae60;
+    color: white;
+}
+
+.badge.bg-cardlog {
+    background-color: #3498db;
+    color: white;
+}
+
+.badge.bg-generated {
+    background-color: #f1c40f;
+    color: #2c3e50;
+}
+
+/* Toggle Details Styling */
+.toggle-details {
+    cursor: pointer;
+    color: #3498db;
+    font-size: 18px;
+    transition: all 0.2s;
+}
+
+.toggle-details:hover {
+    color: #2980b9;
+}
+
+/* Additional Info Styling */
+.additional-info {
+    background-color: #edf2f7;
+    padding: 8px 10px;
+    border-radius: 4px;
+    margin-top: 6px;
+    font-size: 0.8rem;
+}
+
+.info-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    margin-right: 6px;
+}
+
+.info-badge i {
+    margin-right: 4px;
+    font-size: 0.8rem;
+}
+
+.info-badge.resignation {
+    background-color: #ffcdd2;
+    color: #c62828;
+}
+
+.info-badge.substitute {
+    background-color: #bbdefb;
+    color: #1565c0;
+}
+
+.info-comment {
+    font-style: italic;
+    color: #4a5568;
+    margin-left: 4px;
+}
+
+/* Form Elements */
+.form-control, 
+.form-select {
+    font-size: 0.85rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 4px;
+    border: 1px solid #ced4da;
+}
+
+.form-check-input {
+    width: 1em;
+    height: 1em;
+}
+
+.form-check-label {
+    font-size: 0.85rem;
+}
+
+/* Summary Items */
+.summary-item {
+    padding: 6px 10px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    margin-right: 6px;
+    margin-bottom: 6px;
+    display: inline-block;
+    font-size: 0.85rem;
+}
+
+.summary-item strong {
+    margin-right: 4px;
+    color: #495057;
+}
+
+/* Status indicators */
+.status-present {
+    color: #27ae60;
+    font-weight: 600;
+}
+
+.status-absent {
+    color: #e74c3c;
+    font-weight: 600;
+}
+
+.status-probable {
+    color: #f39c12;
+    font-weight: 600;
+}
+
+/* Media queries for responsiveness */
+@media (max-width: 768px) {
+    .expandable-section {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 576px) {
+    .expandable-section {
+        grid-template-columns: 1fr;
+    }
+}

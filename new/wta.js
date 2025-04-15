@@ -1,5 +1,8 @@
 /**
  * Skrypt do obsługi interfejsu systemu WTA
+ * 
+ * Zmienne konfiguracyjne WTA_PREVIEW_DAYS i WTA_MAX_ANALYSIS_DAYS 
+ * powinny być zdefiniowane w index.php przed dołączeniem tego skryptu
  */
 $(document).ready(function() {
     // Obsługa formularza analizy czasu pracy
@@ -16,7 +19,7 @@ $(document).ready(function() {
             return;
         }
         
-        // Sprawdź, czy okres jest mniejszy niż 8 dni (dla szybkiego podglądu)
+        // Sprawdź, czy okres spełnia kryteria dla szybkiego podglądu
         const start = new Date(startDate);
         const end = new Date(endDate);
         const daysDiff = Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1;
@@ -24,7 +27,8 @@ $(document).ready(function() {
         // Pokaż wskaźnik ładowania
         showLoading();
         
-        if (daysDiff <= 7) {
+        // Jeśli okres nie przekracza limitu dla szybkiego podglądu
+        if (daysDiff <= WTA_PREVIEW_DAYS) {
             // Szybki podgląd dla krótkich okresów
             $.ajax({
                 url: 'preview.php',
@@ -57,7 +61,14 @@ $(document).ready(function() {
                 },
                 error: function(xhr, status, error) {
                     hideLoading();
-                    showError('Wystąpił błąd: ' + error);
+                    var errorMsg = 'Wystąpił błąd: ' + error;
+                    try {
+                        // Spróbuj odczytać treść błędu z odpowiedzi
+                        var responseText = xhr.responseText.substring(0, 500); // Pokaż tylko pierwsze 500 znaków
+                        errorMsg += '<br><br>Fragment odpowiedzi:<br><code>' + responseText + '...</code>';
+                    } catch(e) {}
+                    
+                    showError(errorMsg);
                 }
             });
         } else {
@@ -89,7 +100,14 @@ $(document).ready(function() {
                 },
                 error: function(xhr, status, error) {
                     hideLoading();
-                    showError('Wystąpił błąd: ' + error);
+                    var errorMsg = 'Wystąpił błąd: ' + error;
+                    try {
+                        // Spróbuj odczytać treść błędu z odpowiedzi
+                        var responseText = xhr.responseText.substring(0, 500); // Pokaż tylko pierwsze 500 znaków
+                        errorMsg += '<br><br>Fragment odpowiedzi:<br><code>' + responseText + '...</code>';
+                    } catch(e) {}
+                    
+                    showError(errorMsg);
                 }
             });
         }
@@ -97,37 +115,47 @@ $(document).ready(function() {
     
     // Obsługa przycisku eksportu dla podglądu
     function setupExportButton(startDate, endDate, samNumber) {
-        $('#exportPreviewBtn').on('click', function() {
-            // Utwórz formularz do wysłania żądania POST
-            const form = $('<form>', {
-                'method': 'post',
-                'action': 'batch_process.php'
-            }).appendTo('body');
+        $('#exportPreviewBtn').off('click').on('click', function() {
+            showLoading(); // Pokaż wskaźnik ładowania
             
-            // Dodaj pola formularza
-            $('<input>').attr({
-                'type': 'hidden',
-                'name': 'startDate',
-                'value': startDate
-            }).appendTo(form);
-            
-            $('<input>').attr({
-                'type': 'hidden',
-                'name': 'endDate',
-                'value': endDate
-            }).appendTo(form);
-            
-            if (samNumber) {
-                $('<input>').attr({
-                    'type': 'hidden',
-                    'name': 'samNumber',
-                    'value': samNumber
-                }).appendTo(form);
-            }
-            
-            // Wyślij formularz
-            form.submit();
-            form.remove();
+            // Wykonaj żądanie AJAX do dodania zadania do kolejki
+            $.ajax({
+                url: 'batch_process.php',
+                type: 'POST',
+                data: {
+                    startDate: startDate,
+                    endDate: endDate,
+                    samNumber: samNumber
+                },
+                dataType: 'json',
+                success: function(response) {
+                    hideLoading();
+                    
+                    if (response.error) {
+                        showError(response.error);
+                        return;
+                    }
+                    
+                    // Pokaż modal z informacją o dodaniu zadania do kolejki
+                    showQueuedTaskModal(response.task_id, startDate, endDate, samNumber);
+                    
+                    // Odśwież stronę po 2 sekundach
+                    setTimeout(function() {
+                        location.reload();
+                    }, 2000);
+                },
+                error: function(xhr, status, error) {
+                    hideLoading();
+                    var errorMsg = 'Wystąpił błąd: ' + error;
+                    try {
+                        // Spróbuj odczytać treść błędu z odpowiedzi
+                        var responseText = xhr.responseText.substring(0, 500); // Pokaż tylko pierwsze 500 znaków
+                        errorMsg += '<br><br>Fragment odpowiedzi:<br><code>' + responseText + '...</code>';
+                    } catch(e) {}
+                    
+                    showError(errorMsg);
+                }
+            });
         });
     }
     
@@ -147,8 +175,8 @@ $(document).ready(function() {
         }
         
         const daysDiff = Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1;
-        if (daysDiff > 31) {
-            showError('Maksymalny okres analizy to 31 dni');
+        if (daysDiff > WTA_MAX_ANALYSIS_DAYS) {
+            showError('Maksymalny okres analizy to ' + WTA_MAX_ANALYSIS_DAYS + ' dni');
             return false;
         }
         

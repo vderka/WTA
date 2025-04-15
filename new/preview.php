@@ -10,11 +10,20 @@ require_once 'functions.php';
 require_once 'db_functions.php';
 require_once 'wconfig.php';
 
+// Wyłącz wyświetlanie ostrzeżeń i błędów - zamiast tego będą zapisywane do logu
+ini_set('display_errors', 0);
+error_reporting(E_ERROR | E_PARSE);
+
+// Rozpocznij buforowanie wyjścia
+ob_start();
+
 // Sprawdzenie uprawnień i metody żądania
 check_loggedin($pdo);
 checkAppAccess($apps, $apps_to_domains);
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    ob_end_clean();
+    header('Content-Type: application/json');
     http_response_code(405);
     echo json_encode(['error' => 'Method Not Allowed']);
     exit;
@@ -27,6 +36,8 @@ $samNumber = $_POST['samNumber'] ?? '';
 
 // Walidacja dat
 if (empty($startDate) || empty($endDate)) {
+    ob_end_clean();
+    header('Content-Type: application/json');
     echo json_encode(['error' => 'Brak wymaganych parametrów']);
     exit;
 }
@@ -38,6 +49,8 @@ $interval = $start->diff($end);
 $days = $interval->days;
 
 if ($days > WTA_PREVIEW_DAYS) {
+    ob_end_clean();
+    header('Content-Type: application/json');
     echo json_encode(['error' => 'Okres jest zbyt długi do szybkiego podglądu', 'days' => $days]);
     exit;
 }
@@ -68,6 +81,8 @@ try {
         throw new Exception("Błąd połączenia z bazą SQL Server: " . print_r(sqlsrv_errors(), true));
     }
 } catch (Exception $e) {
+    ob_end_clean();
+    header('Content-Type: application/json');
     echo json_encode(['error' => $e->getMessage()]);
     exit;
 }
@@ -76,29 +91,42 @@ try {
 try {
     // Krok 1: Pobierz zamówienia na pracowników z sepm_order_person
     $orders = get_orders($mysqlConn, $startDate, $endDate, $samNumber);
-    print_r($orders);
     
     // Krok 2: Pobierz informacje o kartach RFID i pracownikach
-    $rfidInfo = get_rfid_info($yfConn, $startDate, $endDate);
+    $rfidInfo = get_rfid_info($yfConn, $startDate, $endDate, $samNumber);
     
     // Krok 3: Pobierz odbicia z fake_entries (priorytet 1)
-    $fakeEntries = get_fake_entries($mysqlConn, $startDate, $endDate, array_keys($rfidInfo['rfid_to_id']));
+    $rfidKeys = array_keys($rfidInfo['rfid_to_id'] ?? []);
+    if (!empty($rfidKeys)) {
+        $fakeEntries = get_fake_entries($mysqlConn, $startDate, $endDate, $rfidKeys);
+    } else {
+        $fakeEntries = [];
+    }
     
     // Krok 4: Pobierz rzeczywiste odbicia z card_log (priorytet 2)
-    $cardLogEntries = get_card_log_entries($sqlsrv_conn, $startDate, $endDate, array_keys($rfidInfo['rfid_to_id']));
+    if (!empty($rfidKeys)) {
+        $cardLogEntries = get_card_log_entries($sqlsrv_conn, $startDate, $endDate, $rfidKeys);
+    } else {
+        $cardLogEntries = [];
+    }
     
     // Krok 5: Oblicz czas pracy na podstawie wszystkich źródeł danych
     $worktimeResults = calculate_worktime($orders, $rfidInfo, $fakeEntries, $cardLogEntries, $startDate, $endDate);
     
-    // Zwróć wyniki w formacie HTML dla szybkiego podglądu
+    // Wyczyść bufor i wyślij odpowiedź JSON
+    ob_end_clean();
+    header('Content-Type: application/json');
     echo json_encode([
         'success' => true,
         'html' => generate_preview_html($worktimeResults, $startDate, $endDate),
         'count' => count($worktimeResults)
     ]);
+    exit;
     
 } catch (Exception $e) {
     error_log("Błąd podczas przetwarzania danych: " . $e->getMessage());
+    ob_end_clean();
+    header('Content-Type: application/json');
     echo json_encode(['error' => $e->getMessage()]);
     exit;
 }
@@ -143,22 +171,22 @@ function generate_preview_html($worktimeResults, $startDate, $endDate) {
     
     foreach ($worktimeResults as $row) {
         $html .= '<tr>';
-        $html .= '<td>' . htmlspecialchars($row['date']) . '</td>';
-        $html .= '<td>' . htmlspecialchars($row['card_rfid']) . '</td>';
-        $html .= '<td>' . htmlspecialchars($row['sam_number']) . '</td>';
-        $html .= '<td>' . htmlspecialchars($row['employee_name']) . '</td>';
-        $html .= '<td>' . htmlspecialchars($row['gate_in']) . '</td>';
-        $html .= '<td>' . htmlspecialchars($row['gate_out']) . '</td>';
-        $html .= '<td>' . htmlspecialchars($row['work_start']) . '</td>';
-        $html .= '<td>' . htmlspecialchars($row['work_end']) . '</td>';
-        $html .= '<td>' . htmlspecialchars($row['work_minutes']) . '</td>';
-        $html .= '<td>' . htmlspecialchars($row['deducted_minutes']) . '</td>';
-        $html .= '<td>' . htmlspecialchars($row['entry_reader']) . '</td>';
-        $html .= '<td>' . htmlspecialchars($row['department']) . '</td>';
+        $html .= '<td>' . htmlspecialchars($row['date'] ?? '') . '</td>';
+        $html .= '<td>' . htmlspecialchars($row['card_rfid'] ?? '') . '</td>';
+        $html .= '<td>' . htmlspecialchars($row['sam_number'] ?? '') . '</td>';
+        $html .= '<td>' . htmlspecialchars($row['employee_name'] ?? '') . '</td>';
+        $html .= '<td>' . htmlspecialchars($row['gate_in'] ?? '') . '</td>';
+        $html .= '<td>' . htmlspecialchars($row['gate_out'] ?? '') . '</td>';
+        $html .= '<td>' . htmlspecialchars($row['work_start'] ?? '') . '</td>';
+        $html .= '<td>' . htmlspecialchars($row['work_end'] ?? '') . '</td>';
+        $html .= '<td>' . htmlspecialchars($row['work_minutes'] ?? '') . '</td>';
+        $html .= '<td>' . htmlspecialchars($row['deducted_minutes'] ?? '') . '</td>';
+        $html .= '<td>' . htmlspecialchars($row['entry_reader'] ?? '') . '</td>';
+        $html .= '<td>' . htmlspecialchars($row['department'] ?? '') . '</td>';
         
         // Kolorowe oznaczenie źródła danych
         $sourceClass = '';
-        switch ($row['data_source']) {
+        switch ($row['data_source'] ?? '') {
             case 'GENEROWANE':
                 $sourceClass = 'bg-warning text-dark';
                 break;
@@ -172,7 +200,7 @@ function generate_preview_html($worktimeResults, $startDate, $endDate) {
                 $sourceClass = 'bg-secondary text-white';
         }
         
-        $html .= '<td><span class="badge ' . $sourceClass . '">' . htmlspecialchars($row['data_source']) . '</span></td>';
+        $html .= '<td><span class="badge ' . $sourceClass . '">' . htmlspecialchars($row['data_source'] ?? '') . '</span></td>';
         $html .= '</tr>';
     }
     

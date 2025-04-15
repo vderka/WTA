@@ -5,7 +5,7 @@
 
 // Ustawienia systemu
 define('WTA_MAX_ANALYSIS_DAYS', 31); // Maksymalny okres analizy w dniach
-define('WTA_PREVIEW_DAYS', 7);       // Maksymalny okres dla szybkiego podglądu
+define('WTA_PREVIEW_DAYS', 2);       // Maksymalny okres dla szybkiego podglądu
 define('WTA_TASK_RETENTION_DAYS', 30); // Okres przechowywania zadań w dniach
 
 // Ustawienia zmiany
